@@ -3,6 +3,11 @@ package io.github.thebusybiscuit.slimytreetaps;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.flags.Flags;
+import com.sk89q.worldguard.protection.regions.RegionQuery;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -44,6 +49,18 @@ public class MagicalMirror extends SimpleSlimefunItem<ItemUseHandler> implements
         };
     }
 
+    public boolean canBuild(Player p, Location l) {
+        // WorldGuard Region & Permission Check
+        RegionQuery query = WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery();
+        com.sk89q.worldedit.util.Location loc = BukkitAdapter.adapt(l);
+        com.sk89q.worldedit.world.World world = BukkitAdapter.adapt(l.getWorld());
+        if (WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(WorldGuardPlugin.inst().wrapPlayer(p), world)) {
+            return !query.testState(loc, WorldGuardPlugin.inst().wrapPlayer(p), Flags.BUILD); // Returns true or false
+        } else {
+            return false; // Can build - no claims or regions.
+        }
+    }
+
     public void teleport(Player p, ItemStack item) {
         if (!p.getInventory().containsAtLeast(new ItemStack(Material.ENDER_PEARL), 1)) {
             p.sendMessage(ChatColor.RED + "You need at least one Ender Pearl to use the magical Mirror!");
@@ -54,6 +71,11 @@ public class MagicalMirror extends SimpleSlimefunItem<ItemUseHandler> implements
 
         if (location.isPresent()) {
             if (p.getInventory().removeItem(new ItemStack(Material.ENDER_PEARL)).isEmpty()) {
+                if (canBuild(p, location.get())) {
+                    p.sendTitle(ChatColor.RED + "You can't teleport there!", ChatColor.RED + "That is a protected area!", 20, 60, 20);
+                    return;
+                }
+
                 PaperLib.teleportAsync(p, location.get()).thenAccept(hasTeleported -> {
                     if (hasTeleported.booleanValue()) {
                         p.sendTitle(item.getItemMeta().getDisplayName(), ChatColor.GRAY + "- Magical Mirror -", 20, 60, 20);
