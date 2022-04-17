@@ -63,11 +63,11 @@ public class MagicalMirror extends SimpleSlimefunItem<ItemUseHandler> implements
         Optional<Location> location = getLocation(item);
 
         if (location.isPresent()) {
+            if (!canBuild(p, location.get())) {
+                p.sendTitle(ChatColor.RED + "You can't teleport there!", ChatColor.RED + "That is a protected area!", 20, 60, 20);
+                return;
+            }
             if (p.getInventory().removeItem(new ItemStack(Material.ENDER_PEARL)).isEmpty()) {
-                if (!canBuild(p, location.get())) {
-                    p.sendTitle(ChatColor.RED + "You can't teleport there!", ChatColor.RED + "That is a protected area!", 20, 60, 20);
-                    return;
-                }
 
                 PaperLib.teleportAsync(p, location.get()).thenAccept(hasTeleported -> {
                     if (hasTeleported.booleanValue()) {
