@@ -48,9 +48,9 @@ public class MagicalMirror extends SimpleSlimefunItem<ItemUseHandler> implements
         com.sk89q.worldedit.util.Location loc = BukkitAdapter.adapt(l);
         com.sk89q.worldedit.world.World world = BukkitAdapter.adapt(l.getWorld());
         if (WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(WorldGuardPlugin.inst().wrapPlayer(p), world)) {
-            return !query.testState(loc, WorldGuardPlugin.inst().wrapPlayer(p), Flags.BUILD); // Returns true or false
+            return query.testState(loc, WorldGuardPlugin.inst().wrapPlayer(p), Flags.BUILD); // Returns true or false
         } else {
-            return false; // Can build - no claims or regions.
+            return true; // Can build - no claims or regions.
         }
     }
 
@@ -64,7 +64,7 @@ public class MagicalMirror extends SimpleSlimefunItem<ItemUseHandler> implements
 
         if (location.isPresent()) {
             if (p.getInventory().removeItem(new ItemStack(Material.ENDER_PEARL)).isEmpty()) {
-                if (canBuild(p, location.get())) {
+                if (!canBuild(p, location.get())) {
                     p.sendTitle(ChatColor.RED + "You can't teleport there!", ChatColor.RED + "That is a protected area!", 20, 60, 20);
                     return;
                 }
