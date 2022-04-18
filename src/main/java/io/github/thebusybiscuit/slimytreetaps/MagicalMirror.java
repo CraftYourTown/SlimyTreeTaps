@@ -48,9 +48,11 @@ public class MagicalMirror extends SimpleSlimefunItem<ItemUseHandler> implements
         com.sk89q.worldedit.util.Location loc = BukkitAdapter.adapt(l);
         com.sk89q.worldedit.world.World world = BukkitAdapter.adapt(l.getWorld());
         if (WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(WorldGuardPlugin.inst().wrapPlayer(p), world)) {
-            return query.testState(loc, WorldGuardPlugin.inst().wrapPlayer(p), Flags.BUILD); // Returns true or false
+            System.out.println("[TreeTaps] " + p.getName() + " has bypass permission!");
+            return !query.testState(loc, WorldGuardPlugin.inst().wrapPlayer(p), Flags.BUILD); // Returns true or false
         } else {
-            return true; // Can build - no claims or regions.
+            System.out.println("[TreeTaps] " + p.getName() + " has no bypass permission!");
+            return false; // Can build - no claims or regions.
         }
     }
 
